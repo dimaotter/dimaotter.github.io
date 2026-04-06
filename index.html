@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>UnrealOtter</title>
+
+    <style>
+      :root {
+        --accent: #00d5be;
+        --grid: #fafafa;
+        --bg: #0a0a0a;
+
+        --text: #fcfcfc;
+        --text-secondary: #cccccc;
+
+        --highlight1: #00a6f4;
+        --highlight2: #4f39f6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto;
+
+        background: var(--bg);
+        color: var(--text);
+
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+
+        background-image:
+          linear-gradient(var(--grid) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+
+        background-size: 40px 40px;
+        opacity: 0.03;
+
+        pointer-events: none;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 16px 20px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        font-weight: 600;
+        font-size: 18px;
+      }
+
+      .logo img {
+        width: 36px;
+        height: 36px;
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        padding: 8px 12px;
+
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+
+        cursor: pointer;
+
+        font-size: 14px;
+      }
+
+      .dropdown-btn:hover {
+        border-color: var(--accent);
+      }
+
+      .dropdown-menu {
+        position: absolute;
+
+        right: 0;
+        top: 110%;
+
+        background: #111;
+
+        border-radius: 10px;
+
+        border: 1px solid rgba(255, 255, 255, 0.08);
+
+        overflow: hidden;
+
+        display: none;
+
+        min-width: 140px;
+      }
+
+      .dropdown-menu.active {
+        display: block;
+      }
+
+      .dropdown-item {
+        padding: 10px 14px;
+
+        font-size: 14px;
+
+        color: var(--text-secondary);
+
+        cursor: pointer;
+      }
+
+      .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+      }
+
+      main {
+        flex: 1;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 20px;
+      }
+
+      .card {
+        text-align: center;
+
+        padding: 40px;
+
+        max-width: 420px;
+        width: 100%;
+
+        border-radius: 16px;
+
+        background: rgba(255, 255, 255, 0.02);
+
+        border: 1px solid rgba(255, 255, 255, 0.08);
+
+        backdrop-filter: blur(6px);
+      }
+
+      .buttons {
+        display: flex;
+        flex-direction: column;
+
+        gap: 16px;
+
+        margin-top: 10px;
+      }
+
+      .btn {
+        display: block;
+
+        text-decoration: none;
+
+        padding: 14px;
+
+        border-radius: 10px;
+
+        font-size: 16px;
+        font-weight: 500;
+
+        color: var(--text);
+
+        background: var(--highlight2);
+
+        transition: 0.2s;
+      }
+
+      .btn.secondary {
+        background: var(--highlight2);
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 1px 20px var(--bg);
+      }
+
+      @media (max-width: 600px) {
+        .logo {
+          font-size: 16px;
+        }
+
+        .card {
+          padding: 28px;
+        }
+
+        .btn {
+          font-size: 15px;
+
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="logo">
+        <img
+          src="https://raw.githubusercontent.com/googlefonts/noto-emoji/refs/heads/main/png/512/emoji_u1f9a6.png"
+        />
+
+        UnrealOtter
+      </div>
+
+      <div class="dropdown">
+        <div class="dropdown-btn" id="dropdownBtn">
+          🌐 <span id="currentLang">Русский</span>
+        </div>
+
+        <div class="dropdown-menu" id="dropdownMenu">
+          <!-- <div class="dropdown-item" data-lang="EN">English</div> -->
+          <div class="dropdown-item" data-lang="RU">Русский</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="card">
+        <div class="buttons">
+          <a id="termsBtn" class="btn">Terms of Service</a>
+
+          <a id="privacyBtn" class="btn secondary">Privacy Policy</a>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const texts = {
+        // EN: {
+        //   name: "English",
+        //   terms: "Terms of Service",
+        //   privacy: "Privacy Policy",
+        // },
+
+        RU: {
+          name: "Русский",
+          terms: "Условия использования",
+          privacy: "Политика конфиденциальности",
+        },
+      };
+
+      function detectLanguage() {
+        const lang = navigator.language.toLowerCase();
+
+        if (lang.startsWith("ru")) return "RU";
+
+        // return "EN";
+        return "RU";
+      }
+
+      let language = detectLanguage();
+
+      const currentLang = document.getElementById("currentLang");
+
+      function applyLanguage(lang) {
+        language = lang;
+
+        currentLang.textContent = texts[lang].name;
+
+        document.getElementById("termsBtn").textContent = texts[lang].terms;
+        document.getElementById("privacyBtn").textContent = texts[lang].privacy;
+
+        document.getElementById("termsBtn").href =
+          `/Terms of Service - ${lang}.pdf`;
+
+        document.getElementById("privacyBtn").href =
+          `/Privacy policy - ${lang}.pdf`;
+      }
+
+      applyLanguage(language);
+
+      const btn = document.getElementById("dropdownBtn");
+      const menu = document.getElementById("dropdownMenu");
+
+      btn.onclick = () => {
+        menu.classList.toggle("active");
+      };
+
+      document.querySelectorAll(".dropdown-item").forEach((el) => {
+        el.onclick = () => {
+          applyLanguage(el.dataset.lang);
+          menu.classList.remove("active");
+        };
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.remove("active");
+        }
+      });
+    </script>
+  </body>
+</html>
